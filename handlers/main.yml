@@ -1,0 +1,17 @@
+---
+
+- name: create bundle
+  shell: cat {{ cert_path }}/{{ cert_name }}.pem {{ cert_path }}/{{ cert_name }}-key.pem > {{ cert_path }}/{{ cert_name }}-bundle.pem
+  delegate_to: 127.0.0.1
+
+- name: git push
+  shell: git add . && git commit -m "update keys" && git push
+  args:
+    chdir : "{{ cert_path }}"
+  environment:
+    GIT_KEY: "{{ git_key | realpath }}"
+  register: push
+
+- name: clean up
+  file: path="{{ cert_path }}" state=absent
+  delegate_to: 127.0.0.1

@@ -1,0 +1,39 @@
+---
+
+- name: git pull using the given key
+  git: 
+    accept_hostkey: yes
+    dest: "{{ cert_path }}/"
+    key_file: "{{ git_key | realpath }}"
+    repo: "{{ git_url }}"
+    version: "{{ git_branch }}"
+    recursive: yes
+    force: yes
+    update: yes
+  delegate_to: 127.0.0.1
+
+- openssl_privatekey:
+  path: "{{ cert_path }}/{{ cert_name }}-key.pem"
+  notify:
+    - git push
+    - create bundle
+  delegate_to: 127.0.0.1
+
+- openssl_csr:
+    path: "{{ cert_path }}/{{ cert_name }}.csr"
+    privatekey_path: "{{ cert_path }}/{{ cert_name }}-key.pem"
+    common_name: ansible.com
+  notify:
+    - git push
+  delegate_to: 127.0.0.1
+
+- openssl_certificate:
+    path: "{{ cert_path }}/{{ cert_name }}.pem"
+    privatekey_path: "{{ cert_path }}/{{ cert_name }}-key.pem"
+    csr_path: "{{ cert_path }}/{{ cert_name }}.csr"
+    provider: selfsigned
+  notify:
+    - git push
+    - create bundle
+  delegate_to: 127.0.0.1
+
