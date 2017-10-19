@@ -1,7 +1,7 @@
 ---
 # defaults file for selfsignedcert
 
-cert_path: /tmp
+cert_path: /tmp/certs
 cert_name: ansible
 #git_key: id_rsa
 #git_url:
